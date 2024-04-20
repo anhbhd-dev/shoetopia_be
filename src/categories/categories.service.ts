@@ -3,13 +3,26 @@ import { CategoryRepository } from './categories.repository';
 import { Category } from './categories.entity';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
+import { FilterQuery } from 'mongoose';
 
 @Injectable()
 export class CategoriesService {
   constructor(private readonly categoryRepository: CategoryRepository) {}
 
-  async findAll(): Promise<Category[]> {
-    return await this.categoryRepository.findAll();
+  async findAll(
+    page: number,
+    limit: number,
+    filter?: FilterQuery<Category>,
+  ): Promise<Category[]> {
+    const queryFilter: FilterQuery<Category> = {};
+
+    if (filter) {
+      queryFilter['name'] = {
+        $regex: filter['name'] ?? '',
+        $options: 'i',
+      };
+    }
+    return await this.categoryRepository.findAll(page, limit, queryFilter);
   }
 
   async findOne(id: string): Promise<Category> {

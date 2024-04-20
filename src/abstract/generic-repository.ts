@@ -1,7 +1,12 @@
 import mongoose, { Model, FilterQuery, QueryOptions, Document } from 'mongoose';
 
 export class BaseRepository<T extends Document> {
-  constructor(private readonly model: Model<T>) {}
+  constructor(
+    private readonly model: Model<T>,
+    private readonly _populateKeys?: string[],
+  ) {
+    this._populateKeys = _populateKeys ?? [];
+  }
 
   async create(createData: unknown): Promise<any> {
     const createdEntity = new this.model(createData);
@@ -9,7 +14,10 @@ export class BaseRepository<T extends Document> {
   }
 
   async findById(id: string, option?: QueryOptions): Promise<T> {
-    return this.model.findById(id, option);
+    return this.model
+      .findById(id, option)
+      .populate(this._populateKeys)
+      .exec() as any;
   }
 
   async findByCondition(
@@ -28,8 +36,18 @@ export class BaseRepository<T extends Document> {
     return this.model.find(filter, field, option) as Promise<T[]>;
   }
 
-  async findAll(): Promise<T[]> {
-    return this.model.find();
+  async findAll(
+    page: number,
+    limit: number,
+    filter?: FilterQuery<T>,
+  ): Promise<T[]> {
+    const skip = (page - 1) * limit;
+    return this.model
+      .find(filter)
+      .skip(skip)
+      .limit(limit)
+      .populate(this._populateKeys)
+      .exec();
   }
 
   async aggregate(option: any) {
@@ -68,6 +86,9 @@ export class BaseRepository<T extends Document> {
   }
 
   async findByIdAndUpdate(id: mongoose.ObjectId | any, updateData: Partial<T>) {
-    return this.model.findByIdAndUpdate(id, updateData, { new: true });
+    return this.model
+      .findByIdAndUpdate(id, updateData, { new: true })
+      .populate(this._populateKeys)
+      .exec();
   }
 }

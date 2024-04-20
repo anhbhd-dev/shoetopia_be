@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { Category } from './categories.entity';
@@ -18,8 +19,12 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
-  async findAll(): Promise<Category[]> {
-    return await this.categoriesService.findAll();
+  async findAll(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('name') name?: string,
+  ): Promise<Category[]> {
+    return await this.categoriesService.findAll(+page, +limit, { name });
   }
 
   @Get(':id')
