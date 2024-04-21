@@ -6,7 +6,6 @@ import {
   IsOptional,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { Variation } from 'src/variations/variations.entity';
 
 export class CreateProductDto {
   @IsString()
@@ -33,9 +32,4 @@ export class CreateProductDto {
   @IsOptional()
   @IsString({ each: true })
   images: string[];
-
-  @IsArray()
-  @IsOptional()
-  @IsString({ each: true })
-  variations: Variation[];
 }
