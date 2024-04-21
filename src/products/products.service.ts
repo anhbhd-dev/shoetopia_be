@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ProductRepository } from './products.repository';
-import { Product } from './product.entity';
 import { FilterQuery } from 'mongoose';
-import { CreateProductDto } from './dtos/create-product.dto';
 import { CategoriesService } from 'src/categories/categories.service';
+import { CreateProductDto } from './dtos/create-product.dto';
 import { UpdateProductDto } from './dtos/update-product.dto';
+import { Product } from './product.entity';
+import { ProductRepository } from './products.repository';
 
 @Injectable()
 export class ProductsService {
@@ -30,11 +30,11 @@ export class ProductsService {
   }
 
   async findOne(id: string): Promise<Product> {
-    const category = await this.productRepository.findById(id);
-    if (!category) {
+    const product = await this.productRepository.findById(id);
+    if (!product) {
       throw new NotFoundException(`Product with id ${id} not found`);
     }
-    return category;
+    return product;
   }
 
   async create(createCategoryDto: CreateProductDto): Promise<Product> {

@@ -1,5 +1,12 @@
-import { IsString, IsNumber, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsBoolean,
+  IsArray,
+  IsOptional,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
+import { Variation } from 'src/variations/variations.entity';
 
 export class CreateProductDto {
   @IsString()
@@ -21,4 +28,14 @@ export class CreateProductDto {
 
   @IsString()
   categoryId: string;
+
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  images: string[];
+
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  variations: Variation[];
 }

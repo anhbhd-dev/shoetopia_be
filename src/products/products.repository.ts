@@ -10,6 +10,6 @@ export class ProductRepository extends BaseRepository<ProductDocument> {
     @InjectModel(Product.name)
     private readonly productModel: Model<ProductDocument>,
   ) {
-    super(productModel, ['category']);
+    super(productModel, ['category', 'variations']);
   }
 }

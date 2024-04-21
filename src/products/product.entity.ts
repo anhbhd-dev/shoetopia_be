@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform, Type } from 'class-transformer';
 import mongoose, { Document, ObjectId } from 'mongoose';
 import { Category } from 'src/categories/categories.entity';
+import { Variation } from 'src/variations/variations.entity';
 
 export type ProductDocument = Product & Document;
 
@@ -22,12 +23,27 @@ export class Product {
   @Prop()
   salePrice: number;
 
-  @Prop()
+  @Prop({
+    type: mongoose.Schema.Types.Boolean,
+    required: false,
+  })
   isHot?: boolean;
+
+  @Prop({ type: [{ type: String }] })
+  images: string[];
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Category.name })
   @Type(() => Category)
   category: Category;
+
+  @Prop([
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: Variation.name,
+      required: false,
+    },
+  ])
+  variations?: [Variation];
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
