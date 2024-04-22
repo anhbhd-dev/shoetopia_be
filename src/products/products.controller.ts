@@ -1,18 +1,18 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
   Put,
   Query,
-  Delete,
 } from '@nestjs/common';
-import { Product } from './product.entity';
-import { ProductsService } from './products.service';
 import { IdParam } from 'src/pipes/validate-mongo-id.pipe';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { UpdateProductDto } from './dtos/update-product.dto';
+import { Product } from './product.entity';
+import { ProductsService } from './products.service';
 
 @Controller('api/v1/products')
 export class ProductsController {
