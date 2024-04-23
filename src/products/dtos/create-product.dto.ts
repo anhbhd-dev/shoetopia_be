@@ -1,11 +1,4 @@
-import {
-  IsString,
-  IsNumber,
-  IsBoolean,
-  IsArray,
-  IsOptional,
-} from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
@@ -13,14 +6,6 @@ export class CreateProductDto {
 
   @IsString()
   description: string;
-
-  @IsNumber()
-  @Transform(({ value }) => parseFloat(value))
-  unitPrice: number;
-
-  @IsNumber()
-  @Transform(({ value }) => parseFloat(value))
-  salePrice: number;
 
   @IsBoolean()
   isHot?: boolean;

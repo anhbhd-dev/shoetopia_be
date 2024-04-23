@@ -10,14 +10,14 @@ export class BaseRepository<T extends Document> {
 
   async create(createData: unknown): Promise<any> {
     const createdEntity = new this.model(createData);
-    return await createdEntity.save();
+    return (await createdEntity.save()).populate(this._populateKeys);
   }
 
   async findById(id: string, option?: QueryOptions): Promise<T> {
     return this.model
       .findById(id, option)
       .populate(this._populateKeys)
-      .exec() as any;
+      .exec() as Promise<T>;
   }
 
   async findByCondition(
@@ -25,7 +25,10 @@ export class BaseRepository<T extends Document> {
     field?: any | null,
     option?: any | null,
   ): Promise<T> {
-    return this.model.findOne(filter, field, option) as Promise<T>;
+    return this.model
+      .findOne(filter, field, option)
+      .populate(this._populateKeys)
+      .exec() as Promise<T>;
   }
 
   async getByCondition(
@@ -33,7 +36,10 @@ export class BaseRepository<T extends Document> {
     field?: any | null,
     option?: any | null,
   ): Promise<T[]> {
-    return this.model.find(filter, field, option) as Promise<T[]>;
+    return this.model
+      .find(filter, field, option)
+      .populate(this._populateKeys)
+      .exec() as Promise<T[]>;
   }
 
   async findAll(
@@ -82,10 +88,16 @@ export class BaseRepository<T extends Document> {
     updateData: Partial<T>,
     option?: any | null,
   ) {
-    return this.model.updateMany(filter, updateData, option);
+    return this.model
+      .updateMany(filter, updateData, option)
+      .populate(this._populateKeys)
+      .exec();
   }
 
-  async findByIdAndUpdate(id: mongoose.ObjectId | any, updateData: Partial<T>) {
+  async findByIdAndUpdate(
+    id: mongoose.ObjectId | string,
+    updateData: Partial<T>,
+  ) {
     return this.model
       .findByIdAndUpdate(id, updateData, { new: true })
       .populate(this._populateKeys)

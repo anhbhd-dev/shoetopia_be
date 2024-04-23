@@ -14,6 +14,12 @@ export class Variation {
   size: string;
 
   @Prop()
+  unitPrice: number;
+
+  @Prop()
+  salePrice: number;
+
+  @Prop()
   availableQuantity: number;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Product' })

@@ -13,7 +13,7 @@ export class AuthService {
   ) {}
 
   async validateUser(loginDTO: UserLoginDto): Promise<ResponseLoginDto> {
-    const user = await this.userService.findOne(loginDTO);
+    const user = await this.userService.findOneByEmail(loginDTO);
 
     const passwordMatched = await bcrypt.compare(
       loginDTO.password,
@@ -42,10 +42,7 @@ export class AuthService {
     };
   }
   async refreshToken(user: User) {
-    const payload = { _id: user._id, email: user.email };
-
-    return {
-      accessToken: this.jwtService.sign(payload),
-    };
+    const tokens = this.generateTokens(user);
+    return tokens;
   }
 }

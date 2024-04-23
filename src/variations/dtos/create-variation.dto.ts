@@ -7,6 +7,12 @@ export class CreateVariationDto {
   @IsNumber()
   availableQuantity: number;
 
+  @IsNumber()
+  unitPrice: number;
+
+  @IsNumber()
+  salePrice: number;
+
   @IsString()
   productId: string;
 }

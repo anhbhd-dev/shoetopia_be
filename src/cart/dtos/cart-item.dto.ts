@@ -1,8 +1,8 @@
-import { IsString, IsNumber } from 'class-validator';
+import { IsNumber, IsMongoId } from 'class-validator';
 
 export class CartItemDto {
-  @IsString()
-  productId: string;
+  @IsMongoId()
+  variationId: string;
 
   @IsNumber()
   quantity: number;

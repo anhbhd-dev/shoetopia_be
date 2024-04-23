@@ -18,7 +18,9 @@ export class RefreshJwtStrategy extends PassportStrategy(
   }
 
   async validate(payload: JWTPayloadData) {
-    const user = await this.userService.findOne({ email: payload.email });
+    const user = await this.userService.findOneByEmail({
+      email: payload.email,
+    });
     const userData = (user as any).toJSON();
     delete userData.password;
     return userData;

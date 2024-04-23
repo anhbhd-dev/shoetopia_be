@@ -17,15 +17,10 @@ export class Product {
   @Prop()
   description: string;
 
-  @Prop()
-  unitPrice: number;
-
-  @Prop()
-  salePrice: number;
-
   @Prop({
     type: mongoose.Schema.Types.Boolean,
     required: false,
+    default: false,
   })
   isHot?: boolean;
 
@@ -36,10 +31,15 @@ export class Product {
   @Type(() => Category)
   category: Category;
 
+  @Prop({
+    type: mongoose.Schema.Types.Boolean,
+    default: false,
+  })
+  isActive?: boolean;
   @Prop([
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: Variation.name,
+      ref: 'Variation',
       required: false,
     },
   ])
