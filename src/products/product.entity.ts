@@ -42,7 +42,7 @@ export class Product {
   @Prop([
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Variation',
+      ref: Variation.name,
       required: false,
     },
   ])
