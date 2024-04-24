@@ -10,8 +10,15 @@ export class CreateProductDto {
   @IsBoolean()
   isHot?: boolean;
 
+  @IsBoolean()
+  isActive?: boolean;
+
   @IsString()
   categoryId: string;
+
+  @IsOptional()
+  @IsString()
+  avatar: string;
 
   @IsArray()
   @IsOptional()

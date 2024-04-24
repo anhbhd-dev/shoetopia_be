@@ -14,6 +14,7 @@ import { UsersController } from './users/users.controller';
 import { UsersModule } from './users/users.module';
 import { VariationsModule } from './variations/variations.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { LoggerMiddleware } from './middlewares/logger.middleware';
     VariationsModule,
     CartModule,
     UsersModule,
+    OrdersModule,
   ],
   controllers: [AppController, UsersController],
   providers: [

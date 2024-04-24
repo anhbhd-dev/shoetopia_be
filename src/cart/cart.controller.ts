@@ -21,7 +21,7 @@ export class CartController {
 
   @Get()
   async getCartByUserId(@ExtractUserFromRequest() user: User) {
-    return await this.cartService.getCartByUserId(String(user._id));
+    return await this.cartService.getCartResponseData(String(user._id));
   }
 
   @Post('/add-item')

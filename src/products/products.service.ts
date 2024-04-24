@@ -37,6 +37,14 @@ export class ProductsService {
     return product;
   }
 
+  async findOneByCondition(condition: FilterQuery<Product>): Promise<Product> {
+    const product = await this.productRepository.findByCondition(condition);
+    if (!product) {
+      throw new NotFoundException(`Product not found`);
+    }
+    return product;
+  }
+
   async create(createCategoryDto: CreateProductDto): Promise<Product> {
     const category = await this.categoryService.findOne(
       createCategoryDto.categoryId,

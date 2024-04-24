@@ -16,7 +16,7 @@ export class Cart {
     ref: User.name,
     required: true,
   })
-  user: ObjectId;
+  user: User;
 
   @Prop([
     {
