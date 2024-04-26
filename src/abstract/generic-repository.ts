@@ -10,13 +10,19 @@ export class BaseRepository<T extends Document> {
 
   async create(createData: unknown): Promise<any> {
     const createdEntity = new this.model(createData);
-    return (await createdEntity.save()).populate(this._populateKeys);
+    const savedEntity = await createdEntity.save();
+    return this.model
+      .findById(savedEntity._id)
+      .populate(this._populateKeys)
+      .lean()
+      .exec();
   }
 
   async findById(id: string, option?: QueryOptions): Promise<T> {
     return this.model
       .findById(id, option)
       .populate(this._populateKeys)
+      .lean()
       .exec() as Promise<T>;
   }
 
@@ -28,6 +34,7 @@ export class BaseRepository<T extends Document> {
     return this.model
       .findOne(filter, field, option)
       .populate(this._populateKeys)
+      .lean()
       .exec() as Promise<T>;
   }
 
@@ -39,6 +46,7 @@ export class BaseRepository<T extends Document> {
     return this.model
       .find(filter, field, option)
       .populate(this._populateKeys)
+      .lean()
       .exec() as Promise<T[]>;
   }
 
@@ -53,7 +61,8 @@ export class BaseRepository<T extends Document> {
       .skip(skip)
       .limit(limit)
       .populate(this._populateKeys)
-      .exec();
+      .lean()
+      .exec() as any;
   }
 
   async aggregate(option: any) {
@@ -65,22 +74,24 @@ export class BaseRepository<T extends Document> {
   }
 
   async deleteOne(id: string) {
-    return this.model.deleteOne({ _id: id } as FilterQuery<T>);
+    return this.model.deleteOne({ _id: id } as FilterQuery<T>).lean();
   }
 
   async deleteMany(id: string[]) {
-    return this.model.deleteMany({ _id: { $in: id } } as FilterQuery<T>);
+    return this.model.deleteMany({ _id: { $in: id } } as FilterQuery<T>).lean();
   }
 
   async deleteByCondition(filter?: FilterQuery<T>) {
-    return this.model.deleteMany(filter);
+    return this.model.deleteMany(filter).lean();
   }
 
   async findByConditionAndUpdate(
     filter: FilterQuery<T>,
     updateData: Partial<T>,
   ) {
-    return this.model.findOneAndUpdate(filter as FilterQuery<T>, updateData);
+    return this.model
+      .findOneAndUpdate(filter as FilterQuery<T>, updateData)
+      .lean();
   }
 
   async updateMany(
@@ -91,6 +102,7 @@ export class BaseRepository<T extends Document> {
     return this.model
       .updateMany(filter, updateData, option)
       .populate(this._populateKeys)
+      .lean()
       .exec();
   }
 
@@ -101,6 +113,7 @@ export class BaseRepository<T extends Document> {
     return this.model
       .findByIdAndUpdate(id, updateData, { new: true })
       .populate(this._populateKeys)
+      .lean()
       .exec();
   }
 }

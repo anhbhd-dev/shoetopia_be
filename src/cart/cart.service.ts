@@ -35,7 +35,7 @@ export class CartService {
       return cartData;
     }
 
-    const cartResponse = cart.toObject({ getters: true });
+    const cartResponse = cart;
 
     const mappedCartItems = await Promise.all(
       cartResponse.items.map(async (item) => {
@@ -47,7 +47,7 @@ export class CartService {
     );
 
     cartData.items = mappedCartItems.map((item) => {
-      const productItemData = item.productItemData.toObject();
+      const productItemData = item.productItemData as any;
       const cartItemVariationData = item.cartItemVariationData;
 
       delete productItemData.variations;

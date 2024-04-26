@@ -34,6 +34,9 @@ export class Order {
   shippingAddress: string;
 
   @Prop({ type: String, required: true })
+  receiverName: string;
+
+  @Prop({ type: String, required: true })
   phoneNumber: string;
 
   @Prop([
@@ -61,11 +64,8 @@ export class Order {
   @Prop({ type: Number, required: true })
   totalAmount: number;
 
-  @Prop({ type: Date, default: Date.now })
-  createdAt: Date;
-
   @Prop({ type: [String], default: [OrderStatus.PENDING] })
-  orderStatus: [OrderStatus];
+  orderStatus: OrderStatus[];
 
   @Prop({ type: PaymentSchema })
   payment: Payment;

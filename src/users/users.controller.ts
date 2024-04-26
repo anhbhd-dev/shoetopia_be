@@ -15,11 +15,11 @@ import { IdParam } from 'src/pipes/validate-mongo-id.pipe';
 import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Controller('api/v1/users')
+@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   async findAll(
     @Query('page') page = 1,
     @Query('limit') limit = 10,
@@ -41,7 +41,6 @@ export class UsersController {
     return this.userService.update(id, updateUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
     return req.user;

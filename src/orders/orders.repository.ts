@@ -7,6 +7,6 @@ export class OrderRepository extends BaseRepository<OrderDocument> {
   constructor(
     @InjectModel(Order.name) private readonly orderModel: Model<OrderDocument>,
   ) {
-    super(orderModel);
+    super(orderModel, ['user', 'orderItems.variation']);
   }
 }

@@ -19,8 +19,7 @@ export class JWTStrategy extends PassportStrategy(Strategy, 'jwt') {
     const user = await this.userService.findOneByEmail({
       email: payload.email,
     });
-    const userData = (user as any).toJSON();
-    delete userData.password;
-    return userData;
+    delete user.password;
+    return user;
   }
 }

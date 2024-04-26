@@ -39,7 +39,16 @@ export class UsersService {
       ];
     }
 
-    return await this.userRepository.findAll(page, limit, queryFilter);
+    const userData = await this.userRepository.findAll(
+      page,
+      limit,
+      queryFilter,
+    );
+    const usersDataResponse = userData.map((user) => {
+      delete user.password;
+      return user;
+    });
+    return usersDataResponse;
   }
 
   async findOneByEmail(userData: Partial<UserLoginDto>): Promise<User> {
@@ -73,7 +82,7 @@ export class UsersService {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
     const userRes = await this.userRepository.create(userDto);
-    const userPlain = userRes.toJSON();
+    const userPlain = userRes;
     delete userPlain.password;
     return userPlain;
   }
