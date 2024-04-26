@@ -64,7 +64,7 @@ export class Order {
   @Prop({ type: Number, required: true })
   totalAmount: number;
 
-  @Prop({ type: [String], default: [OrderStatus.PENDING] })
+  @Prop({ type: [String], enum: OrderStatus, required: true })
   orderStatus: OrderStatus[];
 
   @Prop({ type: PaymentSchema })

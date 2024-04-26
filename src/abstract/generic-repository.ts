@@ -88,9 +88,10 @@ export class BaseRepository<T extends Document> {
   async findByConditionAndUpdate(
     filter: FilterQuery<T>,
     updateData: Partial<T>,
+    option?: any | null,
   ) {
     return this.model
-      .findOneAndUpdate(filter as FilterQuery<T>, updateData)
+      .findOneAndUpdate(filter as FilterQuery<T>, updateData, option)
       .lean();
   }
 

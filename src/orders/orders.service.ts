@@ -92,9 +92,14 @@ export class OrdersService {
 
     if (!order) throw new NotFoundException('Order not found');
 
-    if (orderUpdateDto.status) {
-      order.orderStatus = [...order.orderStatus, orderUpdateDto.status];
+    if (orderUpdateDto.orderStatus) {
+      order.orderStatus = [...order.orderStatus, orderUpdateDto.orderStatus];
     }
-    return await this.orderRepository.findByIdAndUpdate(id, orderUpdateDto);
+    const responseOrderUpdate = await this.orderRepository.findByIdAndUpdate(
+      id,
+      order,
+    );
+    delete responseOrderUpdate.user;
+    return responseOrderUpdate;
   }
 }

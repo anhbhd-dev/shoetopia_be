@@ -4,7 +4,7 @@ import { OrderStatus } from 'src/constant/enum/order.enum';
 export class UpdateOrderDto {
   @IsOptional()
   @IsEnum(OrderStatus)
-  status?: OrderStatus;
+  orderStatus?: OrderStatus;
 
   @IsOptional()
   @IsString()

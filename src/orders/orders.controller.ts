@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -14,6 +15,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RequestCreateOrderDto } from './dtos/create-order-dto';
 import { Order } from './order.entity';
 import { IdParam } from 'src/pipes/validate-mongo-id.pipe';
+import { UpdateOrderDto } from './dtos/update-order.dto';
+import { UpdateUserDto } from 'src/users/dtos/update-user.dto';
 
 @Controller('api/v1/orders')
 @UseGuards(JwtAuthGuard)
@@ -45,6 +48,19 @@ export class OrdersController {
     return await this.ordersService.createAnOrder(
       String(user._id),
       requestCreateOrderDto,
+    );
+  }
+
+  @Put(':orderId')
+  async updateOrder(
+    @ExtractUserFromRequest() user: Partial<User>,
+    @IdParam('orderId') @Param('orderId') orderId: string,
+    @Body() updateOrderDto: UpdateOrderDto,
+  ): Promise<Order> {
+    return await this.ordersService.updateOrder(
+      String(user._id),
+      orderId,
+      updateOrderDto,
     );
   }
 }
