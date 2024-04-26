@@ -1,4 +1,3 @@
-// reviews.service.ts
 import {
   BadRequestException,
   Injectable,
@@ -31,7 +30,7 @@ export class ReviewsService {
     return existingReview;
   }
 
-  async getAllReviews(page, limit): Promise<Review[]> {
+  async getAllReviews(page: number, limit: number): Promise<Review[]> {
     return await this.reviewRepository.findAll(page, limit);
   }
 }
