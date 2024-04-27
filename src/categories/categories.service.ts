@@ -4,10 +4,40 @@ import { Category } from './categories.entity';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
 import { FilterQuery } from 'mongoose';
+import { OrderBy } from 'src/types/order-by.type';
 
 @Injectable()
 export class CategoriesService {
   constructor(private readonly categoryRepository: CategoryRepository) {}
+
+  async findAllAdmin(
+    page: number,
+    limit: number,
+    filter?: FilterQuery<Category>,
+    sortBy?: string,
+    order?: OrderBy,
+  ): Promise<{ categories: Category[]; totalPage: number; totalDocs: number }> {
+    const queryFilter: FilterQuery<Category> = {};
+    if (filter && filter['name']) {
+      queryFilter['name'] = { $regex: filter['name'], $options: 'i' };
+    }
+
+    const sortOption = order === OrderBy.ASC ? 'asc' : 'desc';
+
+    const res = await this.categoryRepository.findAllWithFullFilters(
+      page,
+      limit,
+      queryFilter,
+      sortBy,
+      sortOption,
+    );
+
+    return {
+      categories: res.data,
+      totalPage: res.totalPage,
+      totalDocs: res.totalDocs,
+    };
+  }
 
   async findAll(
     page: number,

@@ -64,6 +64,31 @@ export class BaseRepository<T extends Document> {
       .lean()
       .exec() as any;
   }
+  async findAllWithFullFilters(
+    page: number,
+    limit: number,
+    filter?: FilterQuery<T>,
+    sortBy?: string,
+    order?: 'asc' | 'desc',
+  ): Promise<{ data: T[]; totalPage: number; totalDocs: number }> {
+    const skip = (page - 1) * limit;
+    const sortOption: { [key: string]: 1 | -1 } = {};
+    if (sortBy) {
+      sortOption[sortBy] = order === 'asc' ? 1 : -1;
+    }
+
+    const data = (await this.model
+      .find(filter)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .populate(this._populateKeys)
+      .lean()
+      .exec()) as any;
+    const totalDocs = await this.model.countDocuments(filter);
+    const totalPage = Math.ceil(totalDocs / limit);
+    return { data, totalPage, totalDocs };
+  }
 
   async aggregate(option: any) {
     return this.model.aggregate(option);

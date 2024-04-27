@@ -4,6 +4,7 @@ import { CategoriesService } from './categories.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Category, CategorySchema } from './categories.entity';
 import { CategoryRepository } from './categories.repository';
+import { CategoriesAdminController } from './categories.admin.controller';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { CategoryRepository } from './categories.repository';
       { name: Category.name, schema: CategorySchema },
     ]),
   ],
-  controllers: [CategoriesController],
+  controllers: [CategoriesController, CategoriesAdminController],
   providers: [CategoriesService, CategoryRepository],
   exports: [CategoriesService],
 })
