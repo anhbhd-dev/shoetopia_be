@@ -8,15 +8,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { OrdersService } from './orders.service';
-import { ExtractUserFromRequest } from 'src/decorators/user.decorator';
-import { User } from 'src/users/users.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { RequestCreateOrderDto } from './dtos/create-order-dto';
-import { Order } from './order.entity';
+import { ExtractUserFromRequest } from 'src/decorators/user.decorator';
 import { IdParam } from 'src/pipes/validate-mongo-id.pipe';
+import { User } from 'src/users/users.entity';
+import { RequestCreateOrderDto } from './dtos/create-order-dto';
 import { UpdateOrderDto } from './dtos/update-order.dto';
-import { UpdateUserDto } from 'src/users/dtos/update-user.dto';
+import { Order } from './order.entity';
+import { OrdersService } from './orders.service';
 
 @Controller('api/v1/orders')
 @UseGuards(JwtAuthGuard)
