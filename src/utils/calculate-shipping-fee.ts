@@ -31,5 +31,5 @@ export function calculateShippingFee(
 export const defaultShippingFeeTiers: ShippingTier[] = [
   { minAmount: 0, maxAmount: 2000000, percentage: 2.5 },
   { minAmount: 2000000, maxAmount: 5000000, percentage: 1 },
-  { minAmount: 201, maxAmount: Infinity, percentage: 0 },
+  { minAmount: 5000001, maxAmount: Infinity, percentage: 0 },
 ];

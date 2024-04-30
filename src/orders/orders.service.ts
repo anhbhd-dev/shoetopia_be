@@ -42,8 +42,38 @@ export class OrdersService {
           $options: 'i',
         };
 
-      if (filter['orderStatus'])
-        queryFilter['orderStatus'] = filter['orderStatus'];
+      switch (filter['orderStatus']) {
+        case OrderStatus.PENDING:
+          queryFilter['orderStatus'] = [OrderStatus.PENDING];
+          break;
+        case OrderStatus.PROCESSING:
+          queryFilter['orderStatus'] = [
+            OrderStatus.PENDING,
+            OrderStatus.PROCESSING,
+          ];
+          break;
+        case OrderStatus.SHIPPING:
+          queryFilter['orderStatus'] = [
+            OrderStatus.PENDING,
+            OrderStatus.PROCESSING,
+            OrderStatus.SHIPPING,
+          ];
+          break;
+        case OrderStatus.DELIVERED:
+          queryFilter['orderStatus'] = [
+            OrderStatus.PENDING,
+            OrderStatus.PROCESSING,
+            OrderStatus.SHIPPING,
+            OrderStatus.DELIVERED,
+          ];
+          break;
+
+        case OrderStatus.CANCELLED:
+          queryFilter['orderStatus'] = { $in: ['CANCELLED'] };
+          break;
+        default:
+          break;
+      }
     }
 
     const sortOption = order === OrderBy.ASC ? 'asc' : 'desc';
@@ -55,6 +85,7 @@ export class OrdersService {
       sortBy,
       sortOption,
     );
+
     res.data.forEach((order) => {
       delete (order.user as any).password;
     });
@@ -101,14 +132,55 @@ export class OrdersService {
     });
     return userOrdersResponse;
   }
+
+  async getOrderByIdAdmin(orderId: string) {
+    const order = await this.orderRepository.findById(orderId);
+
+    const mappedOrder = await Promise.all(
+      order.orderItems.map(async (orderItem) => {
+        const productInfo = await this.productService.findOneByCondition({
+          variations: orderItem.variation._id,
+        });
+        delete productInfo.variations;
+        delete productInfo.category;
+        const orderItemFullData = {
+          ...orderItem,
+          product: productInfo,
+        };
+        return orderItemFullData;
+      }),
+    );
+
+    order.orderItems = mappedOrder;
+
+    delete (order.user as any).password;
+    return order;
+  }
+
   async getOrderById(userId: string, orderId: string) {
     const order = await this.orderRepository.findById(orderId);
 
     if (!order || (order as any).user._id.toString() !== userId)
       throw new NotFoundException('Order not found');
-    const orderDataResponse = order;
-    delete orderDataResponse.user;
-    return orderDataResponse;
+    const mappedOrder = await Promise.all(
+      order.orderItems.map(async (orderItem) => {
+        const productInfo = await this.productService.findOneByCondition({
+          variations: orderItem.variation._id,
+        });
+        delete productInfo.variations;
+        delete productInfo.category;
+        const orderItemFullData = {
+          ...orderItem,
+          product: productInfo,
+        };
+        return orderItemFullData;
+      }),
+    );
+
+    order.orderItems = mappedOrder;
+
+    delete (order.user as any).password;
+    return order;
   }
 
   async createAnOrder(
@@ -163,6 +235,23 @@ export class OrdersService {
     const order = await this.orderRepository.findByCondition({
       _id: id,
       user: userId,
+    });
+
+    if (!order) throw new NotFoundException('Order not found');
+
+    if (orderUpdateDto.orderStatus) {
+      order.orderStatus = [...order.orderStatus, orderUpdateDto.orderStatus];
+    }
+    const responseOrderUpdate = await this.orderRepository.findByIdAndUpdate(
+      id,
+      order,
+    );
+    delete responseOrderUpdate.user;
+    return responseOrderUpdate;
+  }
+  async updateOrderAdmin(id: string, orderUpdateDto: UpdateOrderDto) {
+    const order = await this.orderRepository.findByCondition({
+      _id: id,
     });
 
     if (!order) throw new NotFoundException('Order not found');

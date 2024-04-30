@@ -49,10 +49,9 @@ export class OrdersAdminController {
 
   @Get(':orderId')
   async findOneOrder(
-    @ExtractUserFromRequest() user: Partial<User>,
     @IdParam('orderId') @Param('orderId') orderId: string,
   ): Promise<Order> {
-    return await this.ordersService.getOrderById(String(user._id), orderId);
+    return await this.ordersService.getOrderByIdAdmin(orderId);
   }
 
   @Post('create')
@@ -68,14 +67,9 @@ export class OrdersAdminController {
 
   @Put(':orderId')
   async updateOrder(
-    @ExtractUserFromRequest() user: Partial<User>,
     @IdParam('orderId') @Param('orderId') orderId: string,
     @Body() updateOrderDto: UpdateOrderDto,
   ): Promise<Order> {
-    return await this.ordersService.updateOrder(
-      String(user._id),
-      orderId,
-      updateOrderDto,
-    );
+    return await this.ordersService.updateOrderAdmin(orderId, updateOrderDto);
   }
 }
