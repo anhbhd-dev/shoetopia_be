@@ -116,7 +116,10 @@ export class BaseRepository<T extends Document> {
     option?: any | null,
   ) {
     return this.model
-      .findOneAndUpdate(filter as FilterQuery<T>, updateData, option)
+      .findOneAndUpdate(filter as FilterQuery<T>, updateData, {
+        ...option,
+        new: true,
+      })
       .lean();
   }
 

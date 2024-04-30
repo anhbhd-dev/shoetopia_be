@@ -8,6 +8,8 @@ export enum OrderStatus {
 
 export enum PaymentMethod {
   CASH_ON_DELIVERY = 'CASH_ON_DELIVERY',
+  ZALOPAY = 'ZALOPAY',
+  VNPAY = 'VNPAY',
 }
 
 export enum PaymentStatus {
