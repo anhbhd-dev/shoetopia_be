@@ -8,20 +8,20 @@ export class CreateProductDto {
   description: string;
 
   @IsBoolean()
+  @IsOptional()
   isHot?: boolean;
 
   @IsBoolean()
+  @IsOptional()
   isActive?: boolean;
 
   @IsString()
   categoryId: string;
 
-  @IsOptional()
   @IsString()
   avatar: string;
 
   @IsArray()
-  @IsOptional()
   @IsString({ each: true })
   images: string[];
 }

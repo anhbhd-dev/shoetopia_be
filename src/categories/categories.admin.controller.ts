@@ -16,7 +16,7 @@ import { CreateCategoryDto } from './dtos/create-category.dto';
 import { IdParam } from 'src/pipes/validate-mongo-id.pipe';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
 
-@Controller('/api/v1/admin/categories')
+@Controller('api/v1/admin/categories')
 export class CategoriesAdminController {
   constructor(private readonly categoriesService: CategoriesService) {}
 

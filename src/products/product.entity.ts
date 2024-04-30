@@ -24,7 +24,7 @@ export class Product {
   })
   isHot?: boolean;
 
-  @Prop({ type: { type: String } })
+  @Prop({ type: String, required: false })
   avatar: string;
 
   @Prop({ type: [{ type: String }] })

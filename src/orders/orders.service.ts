@@ -10,6 +10,12 @@ import {
   PaymentStatus,
 } from 'src/constant/enum/order.enum';
 import { UpdateOrderDto } from './dtos/update-order.dto';
+import { Order } from './order.entity';
+import { OrdersListResponse } from './dtos/orders-response';
+import { FilterQuery } from 'mongoose';
+import { OrderBy } from 'src/types/order-by.type';
+import { SortBy } from 'src/types/sort-by.type';
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class OrdersService {
@@ -17,7 +23,58 @@ export class OrdersService {
     private readonly orderRepository: OrderRepository,
     private readonly cartService: CartService,
     private readonly userService: UsersService,
+    private readonly productService: ProductsService,
   ) {}
+
+  async findAllAdmin(
+    page: number,
+    limit: number,
+    filter?: FilterQuery<Order>,
+    sortBy?: SortBy,
+    order?: OrderBy,
+  ): Promise<OrdersListResponse> {
+    const queryFilter: FilterQuery<Order> = {};
+    if (filter && filter['_id']) {
+      queryFilter['_id'] = { $regex: filter['_id'], $options: 'i' };
+    }
+
+    const sortOption = order === OrderBy.ASC ? 'asc' : 'desc';
+
+    const res = await this.orderRepository.findAllWithFullFilters(
+      page,
+      limit,
+      queryFilter,
+      sortBy,
+      sortOption,
+    );
+    res.data.forEach((order) => {
+      delete (order.user as any).password;
+    });
+
+    const mappedOrdersList = await Promise.all(
+      res.data.map(async (order) => {
+        const mappedOrderItems = await Promise.all(
+          order.orderItems.map(async (orderItem) => {
+            const productInfo = await this.productService.findOneByCondition({
+              variations: orderItem.variation._id,
+            });
+            return {
+              ...orderItem,
+              product: productInfo,
+            };
+          }),
+        );
+        return mappedOrderItems;
+      }),
+    );
+    console.log(mappedOrdersList);
+
+    return {
+      orders: res.data,
+      totalPage: res.totalPage,
+      totalDocs: res.totalDocs,
+    };
+  }
 
   async findAll(userId: string, page: number, limit: number) {
     const userOrders = await this.orderRepository.findAll(page, limit, {

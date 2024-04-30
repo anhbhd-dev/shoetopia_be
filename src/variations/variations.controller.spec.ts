@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { VariationsController } from './variations.controller';
+import { VariationsController } from './variations.admin.controller';
 
 describe('VariationsController', () => {
   let controller: VariationsController;

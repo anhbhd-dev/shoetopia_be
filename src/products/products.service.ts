@@ -5,6 +5,8 @@ import { CreateProductDto } from './dtos/create-product.dto';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { Product } from './product.entity';
 import { ProductRepository } from './products.repository';
+import { OrderBy } from 'src/types/order-by.type';
+import { ProductsListResponse } from './dtos/products-response.dto';
 
 @Injectable()
 export class ProductsService {
@@ -12,6 +14,35 @@ export class ProductsService {
     private readonly productRepository: ProductRepository,
     private readonly categoryService: CategoriesService,
   ) {}
+
+  async findAllAdmin(
+    page: number,
+    limit: number,
+    filter?: FilterQuery<Product>,
+    sortBy?: string,
+    order?: OrderBy,
+  ): Promise<ProductsListResponse> {
+    const queryFilter: FilterQuery<Product> = {};
+    if (filter && filter['name']) {
+      queryFilter['name'] = { $regex: filter['name'], $options: 'i' };
+    }
+
+    const sortOption = order === OrderBy.ASC ? 'asc' : 'desc';
+
+    const res = await this.productRepository.findAllWithFullFilters(
+      page,
+      limit,
+      queryFilter,
+      sortBy,
+      sortOption,
+    );
+
+    return {
+      products: res.data,
+      totalPage: res.totalPage,
+      totalDocs: res.totalDocs,
+    };
+  }
 
   async findAll(
     page: number,
@@ -45,13 +76,14 @@ export class ProductsService {
     return product;
   }
 
-  async create(createCategoryDto: CreateProductDto): Promise<Product> {
+  async create(createProductDto: CreateProductDto): Promise<Product> {
     const category = await this.categoryService.findOne(
-      createCategoryDto.categoryId,
+      createProductDto.categoryId,
     );
+
     if (category)
       return await this.productRepository.create({
-        ...createCategoryDto,
+        ...createProductDto,
         category,
       });
   }
