@@ -31,6 +31,9 @@ export class Order {
   user: ObjectId;
 
   @Prop({ type: String, required: true })
+  orderCode: string;
+
+  @Prop({ type: String, required: true })
   shippingAddress: string;
 
   @Prop({ type: String, required: true })

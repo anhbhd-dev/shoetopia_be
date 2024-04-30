@@ -21,6 +21,7 @@ export class CreateOrderDto {
   shippingFeePercentage: number;
   totalAmount: number;
   orderStatus: [OrderStatus];
+  orderCode: string;
   payment: {
     paymentMethod: PaymentMethod;
     paymentStatus: PaymentStatus;

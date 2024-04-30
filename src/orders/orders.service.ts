@@ -16,6 +16,7 @@ import { FilterQuery } from 'mongoose';
 import { OrderBy } from 'src/types/order-by.type';
 import { SortBy } from 'src/types/sort-by.type';
 import { ProductsService } from 'src/products/products.service';
+import ShortUniqueId from 'short-unique-id';
 
 @Injectable()
 export class OrdersService {
@@ -34,8 +35,15 @@ export class OrdersService {
     order?: OrderBy,
   ): Promise<OrdersListResponse> {
     const queryFilter: FilterQuery<Order> = {};
-    if (filter && filter['_id']) {
-      queryFilter['_id'] = { $regex: filter['_id'], $options: 'i' };
+    if (filter) {
+      if (filter['orderCode'])
+        queryFilter['orderCode'] = {
+          $regex: filter['orderCode'],
+          $options: 'i',
+        };
+
+      if (filter['orderStatus'])
+        queryFilter['orderStatus'] = filter['orderStatus'];
     }
 
     const sortOption = order === OrderBy.ASC ? 'asc' : 'desc';
@@ -58,19 +66,26 @@ export class OrdersService {
             const productInfo = await this.productService.findOneByCondition({
               variations: orderItem.variation._id,
             });
-            return {
+            delete productInfo.variations;
+            delete productInfo.category;
+            const orderItemFullData = {
               ...orderItem,
               product: productInfo,
             };
+            return orderItemFullData;
           }),
         );
-        return mappedOrderItems;
+
+        const mappedOrder = {
+          ...order,
+          orderItems: mappedOrderItems,
+        };
+        return mappedOrder;
       }),
     );
-    console.log(mappedOrdersList);
 
     return {
-      orders: res.data,
+      orders: mappedOrdersList,
       totalPage: res.totalPage,
       totalDocs: res.totalDocs,
     };
@@ -112,6 +127,8 @@ export class OrdersService {
       };
     });
 
+    const uid = new ShortUniqueId({ length: 10 });
+    const orderCode = 'ORDER-' + uid.rnd();
     const orderData: CreateOrderDto = {
       user: userId,
       orderItems: mappedOrderItemsFromCart,
@@ -125,6 +142,7 @@ export class OrdersService {
       totalPrice: cartResponse.totalPrice,
       shippingFeePercentage: cartResponse.shippingFeePercentage,
       totalAmount: cartResponse.totalAmount,
+      orderCode: orderCode,
       payment: {
         paymentMethod:
           requestCreateOrderDto.payment.paymentMethod ||
