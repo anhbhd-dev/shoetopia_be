@@ -6,13 +6,13 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { ExtractUserFromRequest } from 'src/decorators/user.decorator';
 import { CreateUserDto } from 'src/users/dtos/create-user.dto';
+import { User } from 'src/users/users.entity';
 import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
 import { UserLoginDto } from './dtos/auth-login.dto';
 import { RefreshJwtGuard } from './guards/refresh-jwt.guard';
-import { ExtractUserFromRequest } from 'src/decorators/user.decorator';
-import { User } from 'src/users/users.entity';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -39,5 +39,21 @@ export class AuthController {
   @Post('refresh')
   async refreshToken(@ExtractUserFromRequest() user: User) {
     return this.authService.refreshToken(user);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('admin/login')
+  adminLogin(
+    @Body()
+    userLoginDto: UserLoginDto,
+  ) {
+    return this.authService.validateAdmin(userLoginDto);
+  }
+
+  @UseGuards(RefreshJwtGuard)
+  @Post('admin/refresh')
+  async adminRefreshToken(@ExtractUserFromRequest() user: User) {
+    console.log('adasd');
+    return this.authService.refreshTokenAdmin(user);
   }
 }
