@@ -53,7 +53,6 @@ export class AuthController {
   @UseGuards(RefreshJwtGuard)
   @Post('admin/refresh')
   async adminRefreshToken(@ExtractUserFromRequest() user: User) {
-    console.log('adasd');
     return this.authService.refreshTokenAdmin(user);
   }
 }

@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CategoryRepository } from './categories.repository';
-import { Category } from './categories.entity';
-import { CreateCategoryDto } from './dtos/create-category.dto';
-import { UpdateCategoryDto } from './dtos/update-category.dto';
 import { FilterQuery } from 'mongoose';
 import { OrderBy } from 'src/types/order-by.type';
+import { Category } from './categories.entity';
+import { CategoryRepository } from './categories.repository';
+import { CreateCategoryDto } from './dtos/create-category.dto';
+import { UpdateCategoryDto } from './dtos/update-category.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -75,6 +75,7 @@ export class CategoriesService {
     if (!existingCategory) {
       throw new NotFoundException(`Category with id ${id} not found`);
     }
+
     return await this.categoryRepository.findByIdAndUpdate(
       existingCategory._id,
       updateCategoryDto,

@@ -9,7 +9,7 @@ async function bootstrap() {
     cors({
       origin: '*', // Địa chỉ của ứng dụng React
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-      allowedHeaders: 'Content-Type, Accept',
+      allowedHeaders: 'Content-Type, Accept, Authorization',
     }),
   );
   await app.listen(parseInt(process.env.PORT, 10) || 3000);

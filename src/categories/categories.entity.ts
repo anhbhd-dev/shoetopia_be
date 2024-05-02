@@ -9,6 +9,9 @@ export class Category {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
+  @Prop({ type: Boolean, default: false })
+  isShowAtHomePage?: boolean;
+
   @Prop()
   name: string;
 }

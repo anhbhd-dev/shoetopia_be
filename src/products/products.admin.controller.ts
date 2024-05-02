@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { IdParam } from 'src/pipes/validate-mongo-id.pipe';
 import { CreateProductDto } from './dtos/create-product.dto';
@@ -16,8 +17,10 @@ import { ProductsService } from './products.service';
 import { SortBy } from 'src/types/sort-by.type';
 import { OrderBy } from 'src/types/order-by.type';
 import { ProductsListResponse } from './dtos/products-response.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('api/v1/admin/products')
+@UseGuards(JwtAuthGuard)
 export class ProductsAdminController {
   constructor(private readonly productService: ProductsService) {}
 
@@ -26,10 +29,19 @@ export class ProductsAdminController {
     @Query('page') page = 1,
     @Query('limit') limit = 10,
     @Query('name') name?: string,
+    @Query('categories') categories?: string,
     @Query('sortBy') sortBy = SortBy.CREATED_AT,
     @Query('orderBy') orderBy = OrderBy.DESC,
   ): Promise<ProductsListResponse> {
-    const filter = name ? { name } : {};
+    let filter: {
+      name?: string;
+      categories?: string[];
+    } = name ? { name } : {};
+
+    if (categories) {
+      const categoriesArray = categories.split(',');
+      filter = { ...filter, categories: categoriesArray };
+    }
 
     return await this.productService.findAllAdmin(
       +page,

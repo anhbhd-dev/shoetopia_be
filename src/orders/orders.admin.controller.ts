@@ -22,7 +22,7 @@ import { OrderBy } from 'src/types/order-by.type';
 import { OrderStatus } from 'src/constant/enum/order.enum';
 
 @Controller('api/v1/admin/orders')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class OrdersAdminController {
   constructor(private readonly ordersService: OrdersService) {}
 

@@ -1,9 +1,10 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class CreateCategoryDto {
   @IsString()
   name: string;
-  @IsString()
+
+  @IsBoolean()
   @IsOptional()
-  description?: string;
+  isShowAtHomePage?: boolean;
 }

@@ -23,6 +23,9 @@ export class User {
   @Prop({ type: String, required: false })
   phoneNumber: string;
 
+  @Prop({ type: String, required: false })
+  avatar: string;
+
   @Prop()
   password: string;
 

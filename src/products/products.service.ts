@@ -26,6 +26,9 @@ export class ProductsService {
     if (filter && filter['name']) {
       queryFilter['name'] = { $regex: filter['name'], $options: 'i' };
     }
+    if (filter && filter['categories']) {
+      queryFilter['category'] = { $in: filter['categories'] };
+    }
 
     const sortOption = order === OrderBy.ASC ? 'asc' : 'desc';
 
