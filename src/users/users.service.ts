@@ -5,13 +5,13 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { UsersRepository } from './users.repository';
 import * as bcrypt from 'bcrypt';
+import { FilterQuery } from 'mongoose';
+import { UserLoginDto } from 'src/auth/dtos/auth-login.dto';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
-import { FilterQuery } from 'mongoose';
 import { User } from './users.entity';
-import { UserLoginDto } from 'src/auth/dtos/auth-login.dto';
+import { UsersRepository } from './users.repository';
 @Injectable()
 export class UsersService {
   logger: Logger;
@@ -93,5 +93,30 @@ export class UsersService {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
     return await this.userRepository.findByIdAndUpdate(id, updateUserDto);
+  }
+
+  async updatePassword(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<User> {
+    const existingUser = await this.userRepository.findById(id);
+    if (!existingUser) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+    const passwordMatched = await bcrypt.compare(
+      updateUserDto.password,
+      existingUser.password,
+    );
+    if (!passwordMatched) {
+      throw new HttpException('Password incorrect', HttpStatus.BAD_REQUEST);
+    }
+    const salt = await bcrypt.genSalt();
+    updateUserDto.newPassword = await bcrypt.hash(
+      updateUserDto.newPassword,
+      salt,
+    );
+    return await this.userRepository.findByIdAndUpdate(id, {
+      password: updateUserDto.newPassword,
+    });
   }
 }

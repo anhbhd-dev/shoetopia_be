@@ -30,4 +30,12 @@ export class UsersAdminController {
   getProfile(@Request() req) {
     return req.user;
   }
+
+  @Put('password/:id')
+  async updatePassword(
+    @IdParam('id') @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<User> {
+    return this.userService.updatePassword(id, updateUserDto);
+  }
 }

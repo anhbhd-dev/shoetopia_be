@@ -28,11 +28,6 @@ export class UsersController {
     return await this.userService.findAll(+page, +limit, { keyword });
   }
 
-  // @Get(':id')
-  // async findOne(@IdParam('id') @Param('id') id: string): Promise<User> {
-  //   return this.userService.findOne(id);
-  // }
-
   @Put(':id')
   async update(
     @IdParam('id') @Param('id') id: string,
