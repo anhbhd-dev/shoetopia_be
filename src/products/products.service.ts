@@ -51,16 +51,32 @@ export class ProductsService {
     page: number,
     limit: number,
     filter?: FilterQuery<Product>,
-  ): Promise<Product[]> {
+    sortBy?: string,
+    order?: OrderBy,
+  ): Promise<ProductsListResponse> {
     const queryFilter: FilterQuery<Product> = {};
-
-    if (filter) {
-      queryFilter['name'] = {
-        $regex: filter['name'] ?? '',
-        $options: 'i',
-      };
+    if (filter && filter['name']) {
+      queryFilter['name'] = { $regex: filter['name'], $options: 'i' };
     }
-    return await this.productRepository.findAll(page, limit, queryFilter);
+    if (filter && filter['categories']) {
+      queryFilter['category'] = { $in: filter['categories'] };
+    }
+
+    const sortOption = order === OrderBy.ASC ? 'asc' : 'desc';
+
+    const res = await this.productRepository.findAllWithFullFilters(
+      page,
+      limit,
+      queryFilter,
+      sortBy,
+      sortOption,
+    );
+
+    return {
+      products: res.data,
+      totalPage: res.totalPage,
+      totalDocs: res.totalDocs,
+    };
   }
 
   async findOne(id: string): Promise<Product> {

@@ -24,7 +24,22 @@ export class CategoriesController {
     @Query('limit') limit = 10,
     @Query('name') name?: string,
   ): Promise<Category[]> {
-    return await this.categoriesService.findAll(+page, +limit, { name });
+    const filter: { name?: string } = name ? { name } : {};
+
+    return await this.categoriesService.findAll(+page, +limit, filter);
+  }
+
+  @Get('/home')
+  async findHomePageCategories(
+    @Query('page') page = 1,
+    @Query('limit') limit = 4,
+    @Query('name') name?: string,
+  ): Promise<Category[]> {
+    let filter: { name?: string; isShowAtHomePage?: boolean } = name
+      ? { name }
+      : {};
+    filter = { ...filter, isShowAtHomePage: true };
+    return await this.categoriesService.findAll(+page, +limit, filter);
   }
 
   @Get(':id')

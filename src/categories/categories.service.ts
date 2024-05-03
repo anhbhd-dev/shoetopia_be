@@ -51,7 +51,11 @@ export class CategoriesService {
         $regex: filter['name'] ?? '',
         $options: 'i',
       };
+      if (filter['isShowAtHomePage']) {
+        queryFilter['isShowAtHomePage'] = filter['isShowAtHomePage'];
+      }
     }
+
     return await this.categoryRepository.findAll(page, limit, queryFilter);
   }
 
