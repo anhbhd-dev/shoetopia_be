@@ -90,4 +90,15 @@ export class VariationsService {
     });
     await this.variationRepository.deleteOne(id);
   }
+
+  async getDistinctVariationNames(): Promise<string[]> {
+    const pipeline = [
+      { $group: { _id: '$size', size: { $first: '$size' } } },
+      { $project: { _id: 0, size: 1 } },
+    ];
+
+    const distinctNames = await this.variationRepository.aggregate(pipeline);
+
+    return distinctNames.map((doc) => doc.size);
+  }
 }

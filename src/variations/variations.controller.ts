@@ -32,6 +32,11 @@ export class VariationsController {
     return this.variationService.findOne(id);
   }
 
+  @Get('all/names')
+  async getAllVariationNames(): Promise<string[]> {
+    return this.variationService.getDistinctVariationNames();
+  }
+
   @Post()
   async create(
     @Body() variationCreateData: CreateVariationDto,
