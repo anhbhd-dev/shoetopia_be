@@ -42,6 +42,7 @@ export class CartService {
         const productItemData = await this.productService.findOneByCondition({
           variations: item.variation._id,
         });
+
         return { productItemData, cartItemVariationData: item };
       }),
     );
@@ -60,7 +61,12 @@ export class CartService {
         (cartItemVariationData.variation.salePrice ||
           cartItemVariationData.variation.unitPrice);
 
-      return { ...productItemData, ...cartItemVariationData, subTotal };
+      return {
+        productId: productItemData._id,
+        ...productItemData,
+        ...cartItemVariationData,
+        subTotal,
+      };
     });
 
     cartData.totalPrice = cartResponse.items.reduce(
