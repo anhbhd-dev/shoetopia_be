@@ -54,7 +54,7 @@ export class ProductsService {
     sortBy?: string,
     order?: OrderBy,
   ): Promise<ProductsListResponse> {
-    const queryFilter: FilterQuery<Product> = {};
+    const queryFilter: FilterQuery<Product> = { isActive: true };
     if (filter && filter['name']) {
       queryFilter['name'] = { $regex: filter['name'], $options: 'i' };
     }

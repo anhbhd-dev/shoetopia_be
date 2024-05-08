@@ -16,6 +16,10 @@ import { RequestCreateOrderDto } from './dtos/create-order-dto';
 import { UpdateOrderDto } from './dtos/update-order.dto';
 import { Order } from './order.entity';
 import { OrdersService } from './orders.service';
+import { SortBy } from 'src/types/sort-by.type';
+import { OrderBy } from 'src/types/order-by.type';
+import { OrderStatus } from 'src/constant/enum/order.enum';
+import { OrdersListResponse } from './dtos/orders-response';
 
 @Controller('api/v1/orders')
 @UseGuards(JwtAuthGuard)
@@ -25,10 +29,22 @@ export class OrdersController {
   @Get()
   async findAll(
     @Query('page') page = 1,
-    @Query('limit') limit = 10,
+    @Query('limit') limit = 5,
+    @Query('sortBy') sortBy = SortBy.CREATED_AT,
+    @Query('orderBy') orderBy = OrderBy.DESC,
     @ExtractUserFromRequest() user: Partial<User>,
-  ): Promise<Order[]> {
-    return await this.ordersService.findAll(String(user._id), +page, +limit);
+    @Query('orderStatus') orderStatus?: OrderStatus,
+  ): Promise<OrdersListResponse> {
+    const filter = {};
+    if (orderStatus) filter['orderStatus'] = orderStatus;
+    return await this.ordersService.findAll(
+      user,
+      page,
+      limit,
+      filter,
+      sortBy,
+      orderBy,
+    );
   }
 
   @Get(':orderId')

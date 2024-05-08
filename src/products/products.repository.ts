@@ -36,7 +36,7 @@ export class ProductRepository extends BaseRepository<ProductDocument> {
   //       },
   //       {
   //         $lookup: {
-  //           from: 'variations', // Tên collection biến thể
+  //           from: 'variations',
   //           localField: 'variations',
   //           foreignField: '_id',
   //           as: 'variations',
