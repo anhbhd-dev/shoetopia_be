@@ -30,6 +30,24 @@ export class ReviewsService {
     return existingReview;
   }
 
+  async checkIsExistedReviewByUserAndVariationId(
+    userId,
+    variationId,
+  ): Promise<any> {
+    try {
+      const existingReview = await this.reviewRepository.findByCondition({
+        user: userId,
+        variation: variationId,
+      });
+
+      if (existingReview) return { isExisted: true };
+      return { isExisted: false };
+    } catch (err) {
+      console.log(err);
+      return { isExisted: false };
+    }
+  }
+
   async getAllReviews(page: number, limit: number): Promise<Review[]> {
     return await this.reviewRepository.findAll(page, limit);
   }

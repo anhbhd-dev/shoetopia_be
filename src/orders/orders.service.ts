@@ -337,6 +337,27 @@ export class OrdersService {
     delete responseOrderUpdate.user;
     return responseOrderUpdate;
   }
+
+  async updateOrderByCode(
+    userId: string,
+    orderCode: string,
+    orderUpdateDto: UpdateOrderDto,
+  ) {
+    const order = await this.orderRepository.findByCondition({
+      orderCode: orderCode,
+      user: userId,
+    });
+
+    if (!order) throw new NotFoundException('Order not found');
+
+    if (orderUpdateDto.paymentStatus === PaymentStatus.PAID) {
+      order.payment.paymentStatus = PaymentStatus.PAID;
+    }
+    const responseOrderUpdate =
+      await this.orderRepository.findByConditionAndUpdate({ orderCode }, order);
+    delete responseOrderUpdate.user;
+    return responseOrderUpdate;
+  }
   async updateOrderAdmin(id: string, orderUpdateDto: UpdateOrderDto) {
     const order = await this.orderRepository.findByCondition({
       _id: id,

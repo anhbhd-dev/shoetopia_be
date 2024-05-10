@@ -1,10 +1,14 @@
 import { IsOptional, IsEnum, IsString, MaxLength } from 'class-validator';
-import { OrderStatus } from 'src/constant/enum/order.enum';
+import { OrderStatus, PaymentStatus } from 'src/constant/enum/order.enum';
 
 export class UpdateOrderDto {
   @IsOptional()
   @IsEnum(OrderStatus)
   orderStatus?: OrderStatus;
+
+  @IsOptional()
+  @IsEnum(PaymentStatus)
+  paymentStatus?: PaymentStatus;
 
   @IsOptional()
   @IsString()

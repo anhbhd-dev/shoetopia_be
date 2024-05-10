@@ -78,4 +78,16 @@ export class OrdersController {
       updateOrderDto,
     );
   }
+  @Put('order-code/:orderCode')
+  async updateOrderByCode(
+    @ExtractUserFromRequest() user: Partial<User>,
+    @Param('orderCode') orderCode: string,
+    @Body() updateOrderDto: UpdateOrderDto,
+  ): Promise<Order> {
+    return await this.ordersService.updateOrderByCode(
+      String(user._id),
+      orderCode,
+      updateOrderDto,
+    );
+  }
 }
