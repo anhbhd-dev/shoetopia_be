@@ -12,5 +12,5 @@ export class CreateReviewDto {
   user?: string;
 
   @IsMongoId()
-  variation: string;
+  productId: string;
 }

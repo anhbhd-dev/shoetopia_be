@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import mongoose, { Document, ObjectId } from 'mongoose';
+import { Product } from 'src/products/product.entity';
 import { User } from 'src/users/users.entity';
 import { Variation } from 'src/variations/variations.entity';
 
@@ -27,7 +28,7 @@ export class Review {
     type: mongoose.Schema.Types.ObjectId,
     ref: Variation.name,
   })
-  variation: Variation;
+  product: Product;
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(Review);

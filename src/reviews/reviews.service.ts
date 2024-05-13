@@ -14,12 +14,15 @@ export class ReviewsService {
   async createReview(createReviewDto: CreateReviewDto): Promise<Review> {
     const existingReview = await this.reviewRepository.findByCondition({
       user: createReviewDto.user,
-      variation: createReviewDto.variation,
+      product: createReviewDto.productId,
     });
     if (existingReview) {
       throw new BadRequestException('Review already exists');
     }
-    return await this.reviewRepository.create(createReviewDto);
+    return await this.reviewRepository.create({
+      ...createReviewDto,
+      product: createReviewDto.productId,
+    });
   }
 
   async getReviewById(id: string): Promise<Review> {
@@ -30,14 +33,14 @@ export class ReviewsService {
     return existingReview;
   }
 
-  async checkIsExistedReviewByUserAndVariationId(
+  async checkIsExistedReviewByUserAndProductId(
     userId,
-    variationId,
+    productId,
   ): Promise<any> {
     try {
       const existingReview = await this.reviewRepository.findByCondition({
         user: userId,
-        variation: variationId,
+        product: productId,
       });
 
       if (existingReview) return { isExisted: true };
@@ -48,7 +51,7 @@ export class ReviewsService {
     }
   }
 
-  async getAllReviews(page: number, limit: number): Promise<Review[]> {
-    return await this.reviewRepository.findAll(page, limit);
+  async getAllReviews(page: number, limit: number, product): Promise<Review[]> {
+    return await this.reviewRepository.findAll(page, limit, { product });
   }
 }

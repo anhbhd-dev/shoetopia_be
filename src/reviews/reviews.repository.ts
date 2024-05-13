@@ -10,6 +10,6 @@ export class ReviewRepository extends BaseRepository<ReviewDocument> {
     @InjectModel(Review.name)
     private readonly reviewModel: Model<ReviewDocument>,
   ) {
-    super(reviewModel, ['user', 'variation']);
+    super(reviewModel, ['user', 'product']);
   }
 }

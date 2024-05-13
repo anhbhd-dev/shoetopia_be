@@ -28,12 +28,15 @@ export class ReviewsController {
     await this.reviewsService.createReview(createReviewDto);
   }
 
-  @Get()
+  @Get('product-id/:productId')
   async findAll(
     @Query('page') page = 1,
     @Query('limit') limit = 10,
+    @Query('productId') productId,
   ): Promise<Review[]> {
-    return this.reviewsService.getAllReviews(page, limit);
+    return this.reviewsService.getAllReviews(page, limit, {
+      product: productId,
+    });
   }
 
   @Get(':id')
@@ -41,14 +44,14 @@ export class ReviewsController {
     return this.reviewsService.getReviewById(id);
   }
   @UseGuards(JwtAuthGuard)
-  @Get('check-existed-review/:variationId')
-  async checkIsExistedReviewByUserAndVariationId(
-    @Param('variationId') variationId: string,
+  @Get('check-existed-review/:productId')
+  async checkIsExistedReviewByUserAndProductId(
+    @Param('productId') productId: string,
     @ExtractUserFromRequest() user: Partial<User>,
   ) {
-    return await this.reviewsService.checkIsExistedReviewByUserAndVariationId(
+    return await this.reviewsService.checkIsExistedReviewByUserAndProductId(
       user._id,
-      variationId,
+      productId,
     );
   }
 }
