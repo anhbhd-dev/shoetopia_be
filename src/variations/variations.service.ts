@@ -58,15 +58,15 @@ export class VariationsService {
 
   async update(
     id: string,
-    updateCategoryDto: UpdateVariationDto,
+    updateVariationDto: UpdateVariationDto,
   ): Promise<Variation> {
-    const existingCategory = await this.findOne(id);
-    if (!existingCategory) {
+    const existingVariation = await this.findOne(id);
+    if (!existingVariation) {
       throw new NotFoundException(`Variation with id ${id} not found`);
     }
     return await this.variationRepository.findByIdAndUpdate(
-      existingCategory._id,
-      updateCategoryDto,
+      existingVariation._id,
+      updateVariationDto,
     );
   }
 

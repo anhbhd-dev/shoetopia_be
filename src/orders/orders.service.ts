@@ -17,6 +17,7 @@ import { OrderBy } from 'src/types/order-by.type';
 import { SortBy } from 'src/types/sort-by.type';
 import { ProductsService } from 'src/products/products.service';
 import ShortUniqueId from 'short-unique-id';
+import { VariationsService } from 'src/variations/variations.service';
 @Injectable()
 export class OrdersService {
   constructor(
@@ -24,6 +25,7 @@ export class OrdersService {
     private readonly cartService: CartService,
     private readonly userService: UsersService,
     private readonly productService: ProductsService,
+    private readonly variationService: VariationsService,
   ) {}
 
   async findAllAdmin(
@@ -284,6 +286,19 @@ export class OrdersService {
       };
     });
 
+    await Promise.all(
+      cart.items.map(async (item) => {
+        const existingVariation = await this.variationService.findOne(
+          String(item.variation._id),
+        );
+
+        existingVariation.availableQuantity -= item.quantity;
+        await this.variationService.update(
+          String(item.variation._id),
+          existingVariation,
+        );
+      }),
+    );
     const uid = new ShortUniqueId({ length: 10 });
     const orderCode = 'ORDER-' + uid.rnd();
     const orderData: CreateOrderDto = {
