@@ -57,4 +57,23 @@ export class ReviewsService {
       product: new mongoose.Types.ObjectId(product),
     });
   }
+
+  async getAverageRatingByProductId(productId: string): Promise<number> {
+    const result = await this.reviewRepository.aggregate([
+      {
+        $match: {
+          product: new mongoose.Types.ObjectId(productId),
+        },
+      },
+      {
+        $group: {
+          _id: '$product',
+          averageRating: {
+            $avg: '$rating',
+          },
+        },
+      },
+    ]);
+    return result[0]?.averageRating || 0;
+  }
 }

@@ -52,4 +52,9 @@ export class ReviewsController {
       productId,
     );
   }
+
+  @Get('average-rating/:productId')
+  async getAverageRatingByProductId(@Param('productId') productId: string) {
+    return await this.reviewsService.getAverageRatingByProductId(productId);
+  }
 }
