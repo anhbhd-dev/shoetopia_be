@@ -35,6 +35,17 @@ export class CartController {
     );
   }
 
+  @Post('/update-item')
+  async updateItemToCart(
+    @ExtractUserFromRequest() user: User,
+    @Body() updateItemDto: CartItemDto,
+  ) {
+    return await this.cartService.updateCartItemQuantity(
+      String(user._id),
+      updateItemDto,
+    );
+  }
+
   @Post('/decrease-quantity')
   async decreaseItemQuantity(
     @ExtractUserFromRequest() user: User,

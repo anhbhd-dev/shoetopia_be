@@ -150,6 +150,37 @@ export class CartService {
     return this.getCartResponseData(userId);
   }
 
+  async updateCartItemQuantity(
+    userId: string,
+    itemUpdated: CartItemDto,
+  ): Promise<CartResponseDto> {
+    const cart = await this.getCartByUserId(userId);
+
+    const existingVariation: Variation = await this.variationService.findOne(
+      itemUpdated.variationId,
+    );
+    if (!existingVariation) {
+      throw new NotFoundException(
+        `Variation with id ${itemUpdated.variationId} not found`,
+      );
+    }
+    const index = cart.items.findIndex(
+      (item) => String(item.variation?._id) === itemUpdated.variationId,
+    );
+    if (index !== -1) {
+      const isQuantityValid =
+        existingVariation.availableQuantity >= itemUpdated.quantity;
+      if (!isQuantityValid) {
+        throw new BadRequestException(
+          `Số trong giỏ phải nhỏ hơn hoặc bằng số lượng sẵn có là ${existingVariation.availableQuantity}`,
+        );
+      }
+      cart.items[index].quantity = itemUpdated.quantity;
+    }
+    await this.cartRepository.findByIdAndUpdate(cart._id, cart);
+    return this.getCartResponseData(userId);
+  }
+
   async decreaseItemQuantity(
     userId: string,
     variationId: string,
