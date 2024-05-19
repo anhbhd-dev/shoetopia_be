@@ -6,6 +6,7 @@ import {
 import { CreateReviewDto } from './dtos/create-review.dto';
 import { Review } from './reviews.entity';
 import { ReviewRepository } from './reviews.repository';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class ReviewsService {
@@ -52,6 +53,8 @@ export class ReviewsService {
   }
 
   async getAllReviews(page: number, limit: number, product): Promise<Review[]> {
-    return await this.reviewRepository.findAll(page, limit, { product });
+    return await this.reviewRepository.findAll(page, limit, {
+      product: new mongoose.Types.ObjectId(product),
+    });
   }
 }

@@ -1,18 +1,18 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
   Param,
-  UseGuards,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { CreateReviewDto } from './dtos/create-review.dto';
-import { ReviewsService } from './reviews.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { Review } from './reviews.entity';
 import { ExtractUserFromRequest } from 'src/decorators/user.decorator';
 import { User } from 'src/users/users.entity';
+import { CreateReviewDto } from './dtos/create-review.dto';
+import { Review } from './reviews.entity';
+import { ReviewsService } from './reviews.service';
 
 @Controller('api/v1/reviews')
 export class ReviewsController {
@@ -32,11 +32,9 @@ export class ReviewsController {
   async findAll(
     @Query('page') page = 1,
     @Query('limit') limit = 10,
-    @Query('productId') productId,
+    @Param('productId') productId: string,
   ): Promise<Review[]> {
-    return this.reviewsService.getAllReviews(page, limit, {
-      product: productId,
-    });
+    return this.reviewsService.getAllReviews(page, limit, productId);
   }
 
   @Get(':id')

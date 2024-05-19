@@ -118,6 +118,15 @@ export class CartService {
       (item) => String(item.variation?._id) === itemAddedToCartData.variationId,
     );
     if (index !== -1) {
+      const isQuantityValid =
+        existingVariation.availableQuantity >=
+        cart.items[index].quantity + itemAddedToCartData.quantity;
+      if (!isQuantityValid) {
+        throw new BadRequestException(
+          `Số lượng thêm vào giỏ phải nhỏ hơn hoặc bằng số lượng sẵn có là ${existingVariation.availableQuantity}`,
+        );
+      }
+
       cart.items[index].quantity += itemAddedToCartData.quantity;
 
       if (cart.items[index].quantity > existingVariation.availableQuantity)
@@ -125,6 +134,13 @@ export class CartService {
           `Quantity must be less than or equal to ${existingVariation.availableQuantity}`,
         );
     } else {
+      const isQuantityValid =
+        existingVariation.availableQuantity >= itemAddedToCartData.quantity;
+      if (!isQuantityValid) {
+        throw new BadRequestException(
+          `Số lượng thêm vào giỏ phải nhỏ hơn hoặc bằng số lượng sẵn có là ${existingVariation.availableQuantity}`,
+        );
+      }
       cart.items.push({
         variation: existingVariation,
         quantity: itemAddedToCartData.quantity,
