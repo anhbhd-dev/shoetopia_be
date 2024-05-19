@@ -108,7 +108,7 @@ export class UsersService {
       existingUser.password,
     );
     if (!passwordMatched) {
-      throw new HttpException('Password incorrect', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Mật khẩu không đúng', HttpStatus.BAD_REQUEST);
     }
     const salt = await bcrypt.genSalt();
     updateUserDto.newPassword = await bcrypt.hash(

@@ -342,6 +342,23 @@ export class OrdersService {
     if (orderUpdateDto.orderStatus) {
       order.orderStatus = [...order.orderStatus, orderUpdateDto.orderStatus];
     }
+
+    if (orderUpdateDto.orderStatus === OrderStatus.CANCELLED) {
+      await Promise.all(
+        order.orderItems.map(async (item) => {
+          const existingVariation = await this.variationService.findOne(
+            String(item.variation._id),
+          );
+
+          existingVariation.availableQuantity += item.quantity;
+          await this.variationService.update(
+            String(item.variation._id),
+            existingVariation,
+          );
+        }),
+      );
+    }
+
     if (orderUpdateDto.orderStatus === OrderStatus.DELIVERED) {
       order.payment.paymentStatus = PaymentStatus.PAID;
     }
