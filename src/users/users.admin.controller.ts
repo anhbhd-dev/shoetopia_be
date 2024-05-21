@@ -30,6 +30,10 @@ export class UsersAdminController {
   getProfile(@Request() req) {
     return req.user;
   }
+  @Get('count')
+  async countUser() {
+    return this.userService.getUsersCount();
+  }
 
   @Put('password/:id')
   async updatePassword(

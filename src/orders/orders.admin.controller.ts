@@ -72,4 +72,13 @@ export class OrdersAdminController {
   ): Promise<Order> {
     return await this.ordersService.updateOrderAdmin(orderId, updateOrderDto);
   }
+
+  @Get('statistics/total-revenue')
+  async getStatistics() {
+    return await this.ordersService.getTotalAmountBetweenDates();
+  }
+  @Get('statistics/order-today')
+  async getTotalOrderToday() {
+    return await this.ordersService.getOrdersCountToday();
+  }
 }

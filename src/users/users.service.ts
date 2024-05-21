@@ -119,4 +119,19 @@ export class UsersService {
       password: updateUserDto.newPassword,
     });
   }
+
+  async getUsersCount(): Promise<number> {
+    const result = await this.userRepository.aggregate([
+      {
+        $group: {
+          _id: null,
+          usersCount: { $sum: 1 }, // Đếm số lượng người dùng
+        },
+      },
+    ]);
+
+    // Lấy số lượng người dùng từ kết quả aggregation
+    const usersCount = result.length > 0 ? result[0].usersCount : 0;
+    return usersCount;
+  }
 }

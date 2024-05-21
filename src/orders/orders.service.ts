@@ -407,4 +407,61 @@ export class OrdersService {
     delete responseOrderUpdate.user;
     return responseOrderUpdate;
   }
+  async getTotalAmountBetweenDates(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<number> {
+    const matchCondition: any = {};
+
+    if (startDate && endDate) {
+      matchCondition.createdAt = { $gte: startDate, $lte: endDate };
+    } else if (startDate) {
+      matchCondition.createdAt = { $gte: startDate };
+    } else if (endDate) {
+      matchCondition.createdAt = { $lte: endDate };
+    }
+    matchCondition.orderStatus = { $in: [OrderStatus.DELIVERED] };
+    const result = await this.orderRepository.aggregate([
+      {
+        $match: matchCondition, // Lọc các đơn hàng từ startDate đến endDate nếu có
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: '$totalAmount' }, // Tính tổng tiền các đơn hàng
+        },
+      },
+    ]);
+
+    return result.length > 0 ? result[0].totalAmount : 0;
+  }
+
+  async getOrdersCountToday(): Promise<number> {
+    // Lấy ngày hôm nay
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Đặt thời gian về đầu ngày
+
+    // Lấy ngày bắt đầu và kết thúc của ngày hôm nay
+    const startOfToday = today;
+    const endOfToday = new Date(today);
+    endOfToday.setHours(23, 59, 59, 999); // Đặt thời gian về cuối ngày
+
+    const result = await this.orderRepository.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startOfToday, $lte: endOfToday },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          ordersCount: { $sum: 1 }, // Đếm số lượng đơn hàng
+        },
+      },
+    ]);
+
+    // Lấy số lượng đơn hàng từ kết quả aggregation
+    const ordersCount = result.length > 0 ? result[0].ordersCount : 0;
+    return ordersCount;
+  }
 }
