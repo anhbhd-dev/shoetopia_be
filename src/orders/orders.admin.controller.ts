@@ -81,4 +81,8 @@ export class OrdersAdminController {
   async getTotalOrderToday() {
     return await this.ordersService.getOrdersCountToday();
   }
+  @Get('statistics/items-sale')
+  async getItemsSale() {
+    return await this.ordersService.getVariationSalesBetweenDates();
+  }
 }

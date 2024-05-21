@@ -428,7 +428,7 @@ export class OrdersService {
       {
         $group: {
           _id: null,
-          totalAmount: { $sum: '$totalAmount' }, // Tính tổng tiền các đơn hàng
+          totalAmount: { $sum: '$totalPrice' }, // Tính tổng tiền các đơn hàng
         },
       },
     ]);
@@ -463,5 +463,80 @@ export class OrdersService {
     // Lấy số lượng đơn hàng từ kết quả aggregation
     const ordersCount = result.length > 0 ? result[0].ordersCount : 0;
     return ordersCount;
+  }
+
+  async getVariationSalesBetweenDates(
+    page = 1,
+    limit = 5,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<{ data: any[]; totalDocs: number; totalPages: number }> {
+    const matchCondition: any = {};
+
+    if (startDate && endDate) {
+      matchCondition.createdAt = { $gte: startDate, $lte: endDate };
+    } else if (startDate) {
+      matchCondition.createdAt = { $gte: startDate };
+    } else if (endDate) {
+      matchCondition.createdAt = { $lte: endDate };
+    }
+    matchCondition.orderStatus = { $in: [OrderStatus.DELIVERED] };
+    const aggregationPipeline: any[] = [
+      {
+        $unwind: '$orderItems',
+      },
+      {
+        $group: {
+          _id: '$orderItems.variation',
+          totalSaleQuantity: { $sum: '$orderItems.quantity' },
+          salePriceAtBoughtTime: { $first: '$orderItems.price' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'variations',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'variationInfo',
+        },
+      },
+      {
+        $unwind: '$variationInfo',
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'variationInfo._id',
+          foreignField: 'variations',
+          as: 'productInfo',
+        },
+      },
+      {
+        $unwind: '$productInfo',
+      },
+      {
+        $group: {
+          _id: null,
+          data: { $push: '$$ROOT' },
+          totalDocs: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          data: { $slice: ['$data', (page - 1) * limit, limit] },
+          totalDocs: 1,
+          totalPages: { $ceil: { $divide: ['$totalDocs', limit] } },
+        },
+      },
+    ];
+
+    if (Object.keys(matchCondition).length > 0) {
+      aggregationPipeline.unshift({
+        $match: matchCondition,
+      });
+    }
+
+    const result = await this.orderRepository.aggregate(aggregationPipeline);
+    return result[0];
   }
 }

@@ -140,4 +140,17 @@ export class ProductsService {
     }
     await this.productRepository.deleteOne(id);
   }
+  async countProducts(): Promise<number> {
+    const result = await this.productRepository.aggregate([
+      {
+        $group: {
+          _id: null,
+          productsCount: { $sum: 1 }, // Đếm số
+        },
+      },
+    ]);
+
+    const productsCount = result.length > 0 ? result[0].productsCount : 0;
+    return productsCount;
+  }
 }

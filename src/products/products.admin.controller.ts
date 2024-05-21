@@ -77,4 +77,9 @@ export class ProductsAdminController {
   async remove(@IdParam('id') @Param('id') id: string): Promise<void> {
     return this.productService.remove(id);
   }
+
+  @Get('statistics/count-products')
+  async countProduct(): Promise<number> {
+    return this.productService.countProducts();
+  }
 }
