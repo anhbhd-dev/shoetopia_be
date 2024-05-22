@@ -165,7 +165,7 @@ export class ProductsService {
     sizes?: string[],
   ): Promise<ProductsListResponse> {
     const aggregationPipeline: any[] = [];
-
+    console.log(minPrice, maxPrice);
     // Lookup categories
     if (categoryIds && categoryIds.length > 0) {
       aggregationPipeline.push({
@@ -205,7 +205,7 @@ export class ProductsService {
       if (maxPrice !== undefined) {
         priceFilter.$lte = maxPrice;
       }
-      priceFilter.$gte = 0;
+
       aggregationPipeline.push({
         $match: {
           'variations.salePrice': priceFilter,

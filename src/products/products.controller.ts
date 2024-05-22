@@ -54,7 +54,8 @@ export class ProductsController {
     const categoriesArray = categories && categories.split(',');
 
     const sizesArray = sizes && sizes.split(',');
-
+    const minPriceFilter = minPrice ? Number(minPrice) : MIN_PRICE;
+    const maxPriceFilter = maxPrice ? Number(maxPrice) : MAX_PRICE;
     return await this.productService.filterProducts(
       Number(page),
       Number(limit),
@@ -62,8 +63,8 @@ export class ProductsController {
       sortByDate,
       sortByPrice,
       categoriesArray,
-      MIN_PRICE,
-      MAX_PRICE,
+      minPriceFilter,
+      maxPriceFilter,
       sizesArray,
     );
   }
