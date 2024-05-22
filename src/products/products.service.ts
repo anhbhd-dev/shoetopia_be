@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { FilterQuery } from 'mongoose';
+import mongoose, { FilterQuery } from 'mongoose';
 import { CategoriesService } from 'src/categories/categories.service';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { UpdateProductDto } from './dtos/update-product.dto';
@@ -152,5 +152,118 @@ export class ProductsService {
 
     const productsCount = result.length > 0 ? result[0].productsCount : 0;
     return productsCount;
+  }
+  async filterProducts(
+    page: number,
+    pageSize: number,
+    keywords = '',
+    sortByDate?: 'asc' | 'desc',
+    sortByPrice?: 'asc' | 'desc',
+    categoryIds?: string[],
+    minPrice?: number,
+    maxPrice?: number,
+    sizes?: string[],
+  ): Promise<ProductsListResponse> {
+    const aggregationPipeline: any[] = [];
+
+    // Lookup categories
+    if (categoryIds && categoryIds.length > 0) {
+      aggregationPipeline.push({
+        $match: {
+          category: {
+            $in: categoryIds.map((id) => new mongoose.Types.ObjectId(id)),
+          },
+        },
+      });
+    }
+
+    // Lookup variations ((checked))
+    aggregationPipeline.push({
+      $lookup: {
+        from: 'variations', // Collection name of variations
+        localField: 'variations',
+        foreignField: '_id',
+        as: 'variations',
+      },
+    });
+
+    // Filter by size (checked)
+    if (sizes && sizes.length > 0) {
+      aggregationPipeline.push({
+        $match: {
+          'variations.size': { $in: sizes },
+        },
+      });
+    }
+
+    // Filter by price range (checked)
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      const priceFilter: any = {};
+      if (minPrice !== undefined) {
+        priceFilter.$gte = minPrice;
+      }
+      if (maxPrice !== undefined) {
+        priceFilter.$lte = maxPrice;
+      }
+      priceFilter.$gte = 0;
+      aggregationPipeline.push({
+        $match: {
+          'variations.salePrice': priceFilter,
+        },
+      });
+    }
+
+    // mock data
+    // const priceFilter: any = {};
+    // priceFilter.$gte = 10000000;
+    // aggregationPipeline.push({
+    //   $match: {
+    //     'variations.salePrice': priceFilter,
+    //   },
+    // });
+
+    // Search by keywords// Search by keyword
+    const keywordRegex = new RegExp(keywords, 'i');
+    aggregationPipeline.push({
+      $match: {
+        $or: [
+          { name: { $regex: keywordRegex } },
+          { description: { $regex: keywordRegex } },
+        ],
+      },
+    });
+
+    // Count total documents
+    const countPipeline = [...aggregationPipeline, { $count: 'totalDocs' }];
+    const countResult = await this.productRepository.aggregate(countPipeline);
+    const totalDocs = countResult.length > 0 ? countResult[0].totalDocs : 0;
+
+    // Calculate pagination
+    const totalPage = Math.ceil(totalDocs / pageSize);
+    const skip = (page - 1) * pageSize;
+
+    // Sort
+    const sort: any = {};
+
+    if (sortByDate === 'asc' || sortByDate === 'desc') {
+      sort.createdAt = sortByDate === 'asc' ? 1 : -1;
+    }
+    if (sortByPrice === 'asc' || sortByPrice === 'desc') {
+      sort['variations.salePrice'] = sortByPrice === 'asc' ? 1 : -1;
+    }
+    if (Object.keys(sort).length === 0) {
+      sort.createdAt = 1;
+    }
+    aggregationPipeline.push({ $sort: sort });
+
+    // Pagination
+    aggregationPipeline.push({ $skip: skip });
+    aggregationPipeline.push({ $limit: pageSize });
+
+    // Execute aggregation
+    const products =
+      await this.productRepository.aggregate(aggregationPipeline);
+
+    return { totalPage, totalDocs, products };
   }
 }
