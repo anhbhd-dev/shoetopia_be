@@ -9,6 +9,7 @@ import { UsersModule } from 'src/users/users.module';
 import { OrdersAdminController } from './orders.admin.controller';
 import { ProductsModule } from 'src/products/products.module';
 import { VariationsModule } from 'src/variations/variations.module';
+import { PaymentMethodsModule } from 'src/payment-methods/payment-methods.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { VariationsModule } from 'src/variations/variations.module';
     CartModule,
     UsersModule,
     VariationsModule,
+    PaymentMethodsModule,
     MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
   ],
   providers: [OrdersService, OrderRepository],

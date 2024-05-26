@@ -22,6 +22,7 @@ import { OrdersListResponse } from './dtos/orders-response';
 import { UpdateOrderDto } from './dtos/update-order.dto';
 import { Order } from './order.entity';
 import { OrderRepository } from './orders.repository';
+import { PaymentMethodsService } from 'src/payment-methods/payment-methods.service';
 @Injectable()
 export class OrdersService {
   constructor(
@@ -30,6 +31,7 @@ export class OrdersService {
     private readonly userService: UsersService,
     private readonly productService: ProductsService,
     private readonly variationService: VariationsService,
+    private readonly paymentMethodService: PaymentMethodsService,
   ) {}
 
   async findAllAdmin(
@@ -278,6 +280,16 @@ export class OrdersService {
     userId: string,
     requestCreateOrderDto: RequestCreateOrderDto,
   ) {
+    if (requestCreateOrderDto.payment.paymentMethod === PaymentMethod.VNPAY) {
+      const payment = await this.paymentMethodService.findByName(
+        PaymentMethod.VNPAY,
+      );
+      if (!payment.isEnabled)
+        throw new BadRequestException(
+          'Phương thức thanh toán vừa được cập nhật vui lòng tải lại trang',
+        );
+    }
+
     const cart = await this.cartService.getCartByUserId(userId);
     const cartResponse = await this.cartService.getCartResponseData(userId);
     const user: User = await this.userService.findOneById(userId);
