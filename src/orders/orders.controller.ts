@@ -84,6 +84,7 @@ export class OrdersController {
     @Param('orderCode') orderCode: string,
     @Body() updateOrderDto: UpdateOrderDto,
   ): Promise<Order> {
+    console.log(updateOrderDto);
     return await this.ordersService.updateOrderByCode(
       String(user._id),
       orderCode,

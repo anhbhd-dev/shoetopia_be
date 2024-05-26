@@ -47,27 +47,41 @@ export class CartService {
       }),
     );
 
-    cartData.items = mappedCartItems.map((item) => {
-      const productItemData = item.productItemData as any;
-      const cartItemVariationData = item.cartItemVariationData;
+    const updatedCartItems = await Promise.all(
+      mappedCartItems.map(async (item) => {
+        const productItemData = item.productItemData as any;
+        const cartItemVariationData = item.cartItemVariationData;
+        const maxQuantity =
+          cartItemVariationData.variation.availableQuantity || 0;
 
-      delete productItemData.variations;
-      delete productItemData.category;
-      delete productItemData.createdAt;
-      delete productItemData.updatedAt;
+        // Xác định số lượng thực tế của sản phẩm trong giỏ hàng
+        const realQuantityInCart = Math.min(
+          cartItemVariationData.quantity,
+          maxQuantity,
+        );
 
-      const subTotal =
-        cartItemVariationData.quantity *
-        (cartItemVariationData.variation.salePrice ||
-          cartItemVariationData.variation.unitPrice);
+        if (realQuantityInCart === 0) {
+          // Nếu số lượng thực tế là 0, loại bỏ mục khỏi giỏ hàng
+          return null;
+        }
 
-      return {
-        productId: productItemData._id,
-        ...productItemData,
-        ...cartItemVariationData,
-        subTotal,
-      };
-    });
+        // Cập nhật số lượng mới trong giỏ hàng
+        const updatedCartItem = {
+          productId: productItemData._id,
+          ...productItemData,
+          ...cartItemVariationData,
+          quantity: realQuantityInCart,
+          subTotal:
+            realQuantityInCart *
+            (cartItemVariationData.variation.salePrice ||
+              cartItemVariationData.variation.unitPrice),
+        };
+
+        return updatedCartItem;
+      }),
+    );
+
+    cartData.items = updatedCartItems.filter((item) => item !== null); // Loại bỏ các mục null
 
     cartData.totalPrice = cartResponse.items.reduce(
       (accumulator: number, currentItem) => {
@@ -77,6 +91,7 @@ export class CartService {
       },
       0,
     );
+
     const shippingFeeData = calculateShippingFee(
       cartData.totalPrice,
       defaultShippingFeeTiers,

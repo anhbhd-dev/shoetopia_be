@@ -1,23 +1,27 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { OrderRepository } from './orders.repository';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { FilterQuery } from 'mongoose';
+import ShortUniqueId from 'short-unique-id';
 import { CartService } from 'src/cart/cart.service';
-import { CreateOrderDto, RequestCreateOrderDto } from './dtos/create-order-dto';
-import { User } from 'src/users/users.entity';
-import { UsersService } from 'src/users/users.service';
 import {
   OrderStatus,
   PaymentMethod,
   PaymentStatus,
 } from 'src/constant/enum/order.enum';
-import { UpdateOrderDto } from './dtos/update-order.dto';
-import { Order } from './order.entity';
-import { OrdersListResponse } from './dtos/orders-response';
-import { FilterQuery } from 'mongoose';
+import { ProductsService } from 'src/products/products.service';
 import { OrderBy } from 'src/types/order-by.type';
 import { SortBy } from 'src/types/sort-by.type';
-import { ProductsService } from 'src/products/products.service';
-import ShortUniqueId from 'short-unique-id';
+import { User } from 'src/users/users.entity';
+import { UsersService } from 'src/users/users.service';
 import { VariationsService } from 'src/variations/variations.service';
+import { CreateOrderDto, RequestCreateOrderDto } from './dtos/create-order-dto';
+import { OrdersListResponse } from './dtos/orders-response';
+import { UpdateOrderDto } from './dtos/update-order.dto';
+import { Order } from './order.entity';
+import { OrderRepository } from './orders.repository';
 @Injectable()
 export class OrdersService {
   constructor(
@@ -278,6 +282,23 @@ export class OrdersService {
     const cartResponse = await this.cartService.getCartResponseData(userId);
     const user: User = await this.userService.findOneById(userId);
 
+    const variationIds = cart.items.map((item) => item.variation._id);
+    const variations = await Promise.all(
+      variationIds.map((id) => this.variationService.findOne(id)),
+    );
+
+    const itemsExceedingStock = cart.items.filter((item, index) => {
+      const maxQuantity = variations[index].availableQuantity || 0;
+      return item.quantity > maxQuantity;
+    });
+
+    if (itemsExceedingStock.length > 0) {
+      // Nếu có mục vượt quá số lượng có sẵn
+      throw new BadRequestException(
+        'Giỏ hàng của bạn đã được cập nhật xin vui lòng kiểm tra giỏ hàng và F5 để tải lại trang',
+      );
+    }
+
     const mappedOrderItemsFromCart = cart.items.map((item) => {
       return {
         variation: item.variation,
@@ -385,6 +406,26 @@ export class OrdersService {
     if (orderUpdateDto.paymentStatus === PaymentStatus.PAID) {
       order.payment.paymentStatus = PaymentStatus.PAID;
     }
+    if (orderUpdateDto.orderStatus) {
+      order.orderStatus = [...order.orderStatus, orderUpdateDto.orderStatus];
+    }
+
+    if (orderUpdateDto.orderStatus === OrderStatus.CANCELLED) {
+      await Promise.all(
+        order.orderItems.map(async (item) => {
+          const existingVariation = await this.variationService.findOne(
+            String(item.variation._id),
+          );
+
+          existingVariation.availableQuantity += item.quantity;
+          await this.variationService.update(
+            String(item.variation._id),
+            existingVariation,
+          );
+        }),
+      );
+    }
+
     const responseOrderUpdate =
       await this.orderRepository.findByConditionAndUpdate({ orderCode }, order);
     delete responseOrderUpdate.user;

@@ -9,17 +9,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { OrderStatus } from 'src/constant/enum/order.enum';
 import { ExtractUserFromRequest } from 'src/decorators/user.decorator';
 import { IdParam } from 'src/pipes/validate-mongo-id.pipe';
+import { OrderBy } from 'src/types/order-by.type';
+import { SortBy } from 'src/types/sort-by.type';
 import { User } from 'src/users/users.entity';
 import { RequestCreateOrderDto } from './dtos/create-order-dto';
+import { OrdersListResponse } from './dtos/orders-response';
 import { UpdateOrderDto } from './dtos/update-order.dto';
 import { Order } from './order.entity';
 import { OrdersService } from './orders.service';
-import { OrdersListResponse } from './dtos/orders-response';
-import { SortBy } from 'src/types/sort-by.type';
-import { OrderBy } from 'src/types/order-by.type';
-import { OrderStatus } from 'src/constant/enum/order.enum';
 
 @Controller('api/v1/admin/orders')
 @UseGuards(JwtAuthGuard)
@@ -74,15 +74,44 @@ export class OrdersAdminController {
   }
 
   @Get('statistics/total-revenue')
-  async getStatistics() {
-    return await this.ordersService.getTotalAmountBetweenDates();
+  async getStatistics(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    let start, end;
+
+    if (startDate) {
+      start = new Date(startDate);
+    }
+    if (endDate) {
+      end = new Date(endDate);
+    }
+
+    return await this.ordersService.getTotalAmountBetweenDates(start, end);
   }
   @Get('statistics/order-today')
   async getTotalOrderToday() {
     return await this.ordersService.getOrdersCountToday();
   }
   @Get('statistics/items-sale')
-  async getItemsSale() {
-    return await this.ordersService.getVariationSalesBetweenDates();
+  async getItemsSale(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    let start, end;
+
+    if (startDate) {
+      start = new Date(startDate);
+    }
+    if (endDate) {
+      end = new Date(endDate);
+    }
+
+    return await this.ordersService.getVariationSalesBetweenDates(
+      1,
+      5,
+      start,
+      end,
+    );
   }
 }
