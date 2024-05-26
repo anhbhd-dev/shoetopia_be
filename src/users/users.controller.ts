@@ -15,11 +15,11 @@ import { IdParam } from 'src/pipes/validate-mongo-id.pipe';
 import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Controller('api/v1/users')
-@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   async findAll(
     @Query('page') page = 1,
     @Query('limit') limit = 10,
@@ -27,8 +27,13 @@ export class UsersController {
   ): Promise<User[]> {
     return await this.userService.findAll(+page, +limit, { keyword });
   }
+  @Get('reset-password')
+  async resetPassword(@Query('email') email: string) {
+    return await this.userService.resetPassword(email);
+  }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @IdParam('id') @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -37,11 +42,13 @@ export class UsersController {
   }
 
   @Get('profile')
+  @UseGuards(JwtAuthGuard)
   getProfile(@Request() req) {
     return req.user;
   }
 
   @Put('password/:id')
+  @UseGuards(JwtAuthGuard)
   async updatePassword(
     @IdParam('id') @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,

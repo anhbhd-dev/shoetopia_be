@@ -12,10 +12,14 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { User } from './users.entity';
 import { UsersRepository } from './users.repository';
+import { MailerService } from '@nestjs-modules/mailer';
 @Injectable()
 export class UsersService {
   logger: Logger;
-  constructor(private readonly userRepository: UsersRepository) {
+  constructor(
+    private readonly userRepository: UsersRepository,
+    private readonly mailService: MailerService,
+  ) {
     this.logger = new Logger(UsersService.name);
   }
 
@@ -120,6 +124,32 @@ export class UsersService {
     });
   }
 
+  async resetPassword(email: string) {
+    const user = await this.userRepository.findByCondition({ email });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Tạo mật khẩu ngẫu nhiên có độ dài 10 ký tự
+    const newPassword = this.generateRandomPassword(10);
+
+    // Mã hóa mật khẩu mới
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Lưu mật khẩu mới vào cơ sở dữ liệu
+    user.password = hashedPassword;
+    await this.userRepository.findByIdAndUpdate(user._id, user);
+
+    // Gửi email
+    await this.mailService.sendMail({
+      to: email,
+      from: 'shoetopia.shoes.store@gmail.com',
+      subject: 'Reset Password',
+      text: `Mật khẩu mới của bạn là: ${newPassword}`,
+      html: `<p>Mật khẩu mới của bạn là: <strong>${newPassword}</strong></p>`,
+    });
+  }
   async getUsersCount(): Promise<number> {
     const result = await this.userRepository.aggregate([
       {
@@ -133,5 +163,17 @@ export class UsersService {
     // Lấy số lượng người dùng từ kết quả aggregation
     const usersCount = result.length > 0 ? result[0].usersCount : 0;
     return usersCount;
+  }
+
+  generateRandomPassword(length: number): string {
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let newPassword = '';
+    for (let i = 0; i < length; i++) {
+      newPassword += characters.charAt(
+        Math.floor(Math.random() * characters.length),
+      );
+    }
+    return newPassword;
   }
 }
